@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تلفزيون منتصف الليل - Midnight TV</title>
+    <style>
+        /* إعدادات الخلفية العامة */
+        body {
+            background-color: #0a0a0a;
+            color: #33ff00; /* لون نص أخضر كلاسيكي */
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* عنوان الموقع */
+        h1 {
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #33ff00;
+            letter-spacing: 2px;
+        }
+
+        /* هيكل التلفزيون الخارجي */
+        .tv-box {
+            background-color: #222;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,255,255,0.05);
+            width: 90vw;
+            max-width: 700px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 4px solid #111;
+        }
+
+        /* إطار الشاشة الداخلي */
+        .screen-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4 / 3; /* نسبة أبعاد التلفزيونات القديمة بدلاً من 16:9 */
+            background-color: #000;
+            border: 20px solid #000;
+            border-radius: 40px; /* شاشة منحنية الحواف */
+            overflow: hidden;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.9);
+        }
+
+        /* مشغل يوتيوب */
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transition: opacity 0.3s;
+        }
+
+        /* تأثير خطوط التلفزيون القديم (Scanlines) */
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            z-index: 10;
+        }
+
+        /* شاشة التشويش (تظهر عند تغيير القناة فقط) */
+        .static-noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://media.giphy.com/media/Yv1zxJ4B3L9Qc/giphy.gif'); /* صورة متحركة لتشويش */
+            background-size: cover;
+            opacity: 0; /* مخفية افتراضياً */
+            pointer-events: none;
+            z-index: 5;
+            transition: opacity 0.1s;
+        }
+
+        /* منطقة الأزرار */
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+        }
+
+        /* تصميم الأزرار */
+        button {
+            background-color: #b30000;
+            color: white;
+            border: 2px solid #550000;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #660000;
+            transition: 0.1s;
+            text-transform: uppercase;
+        }
+
+        button:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #660000;
+        }
+
+        /* لمبة التلفزيون الحمراء */
+        .power-light {
+            width: 12px;
+            height: 12px;
+            background-color: red;
+            border-radius: 50%;
+            margin-top: 15px;
+            box-shadow: 0 0 10px red;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Midnight TV 📺</h1>
+
+    <div class="tv-box">
+        <div class="screen-wrapper">
+            <!-- مشغل يوتيوب -->
+            <iframe id="tv-screen" 
+                src="https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1&controls=0&modestbranding=1&rel=0" 
+                allow="autoplay; encrypted-media" 
+                allowfullscreen>
+            </iframe>
+            
+            <!-- تأثير التشويش والخطوط -->
+            <div id="static-layer" class="static-noise"></div>
+            <div class="scanlines"></div>
+        </div>
+
+        <div class="power-light"></div>
+
+        <div class="controls">
+            <button onclick="changeChannel()">تغيير القناة ⏭</button>
+        </div>
+    </div>
+
+    <script>
+        // قائمة فيديوهات غريبة، ممتعة، وغير متوقعة
+        const channels = [
+            "5qap5aO4i9A", // قناة Lofi Hip Hop للهدوء
+            "W_RXvY-XbAI", // فيديو غريب لتنويم مغناطيسي بصري
+            "rO4k1F4E6A8", // إعلان ياباني غريب جداً ومضحك
+            "q2KkYp4T86U", // فيديو قطط تتصرف بغرابة شديدة
+            "TdjK0yH2G_A", // استكشاف كوكب المريخ 4K
+            "8nBtsO8aUcg", // شخص يعزف موسيقى بآلات غريبة
+            "g30eD9G4v90", // فيديو استرخاء تحت الماء مع أسماك القرش
+            "jNQXAC9IVRw", // أول فيديو على يوتيوب كنوع من التاريخ
+            "2XG_0EMtYHM"  // حرف يدوية دقيقة ومريحة للأعصاب
+        ];
+
+        let currentChannelIndex = -1; // لتجنب تكرار نفس القناة مرتين متتاليتين
+
+        function changeChannel() {
+            const tvScreen = document.getElementById('tv-screen');
+            const staticLayer = document.getElementById('static-layer');
+            
+            // 1. إظهار التشويش وإخفاء الفيديو مؤقتاً
+            staticLayer.style.opacity = "1";
+            tvScreen.style.opacity = "0";
+
+            // 2. اختيار فيديو جديد لا يطابق الفيديو الحالي
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * channels.length);
+            } while (randomIndex === currentChannelIndex);
+            
+            currentChannelIndex = randomIndex;
+            const randomVideoID = channels[currentChannelIndex];
+            
+            // 3. تأخير بسيط لمحاكاة وقت تغيير القناة القديمة (نصف ثانية)
+            setTimeout(() => {
+                // تغيير الرابط
+                tvScreen.src = "https://www.youtube.com/embed/" + randomVideoID + "?autoplay=1&controls=0&modestbranding=1&rel=0";
+                
+                // إخفاء التشويش وإظهار الفيديو الجديد
+                staticLayer.style.opacity = "0";
+                tvScreen.style.opacity = "1";
+            }, 600); // 600 ملي ثانية مدة التشويش
+        }
+    </script>
+
+</body>
+</html>
